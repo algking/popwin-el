@@ -1,0 +1,282 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>popwin.el by m2ym</title>
+    
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>popwin.el</h1>
+        <p>Popup Window Manager for Emacs</p>
+        <p class="view"><a href="https://github.com/m2ym/popwin-el">View the Project on GitHub <small>m2ym/popwin-el</small></a></p>
+        <ul>
+          <li><a href="https://github.com/m2ym/popwin-el/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/m2ym/popwin-el/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/m2ym/popwin-el">Fork On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Overview</h2>
+
+<p>popwin is a popup window manager for Emacs which makes you free from
+the hell of annoying buffers such like <code>*Help*</code>, <code>*Completions*</code>,
+<code>*compilation*</code>, and etc.</p>
+
+<p>Take an example. When you complete file names during <code>find-file</code>, the
+(annoying) <code>*Completions*</code> buffer will appear in a newly splitted
+window. You might understand the necessity of the window, but you may
+wonder why the window still remains after completion...</p>
+
+<p>popwin resolves there problems. Windows of such temporary buffers will
+be shown as a popup window, and you can close them smoothly by typing
+<code>C-g</code> in anytime.</p>
+
+<h2>Screenshots</h2>
+
+<p><strong>Before Popup Window</strong></p>
+
+<p><img src="http://cx4a.org/software/popwin/popwin1.png" alt=""></p>
+
+<p><strong>After Popup Window</strong></p>
+
+<p><img src="http://cx4a.org/software/popwin/popwin2.png" alt=""></p>
+
+<h2>Installation</h2>
+
+<p>Install <code>popwin.el</code> into your <code>load-path</code> directory. If you have
+<code>install-elisp</code> or <code>auto-install</code>, you also be able to install
+<code>popwin.el</code> like:</p>
+
+<pre><code>;; install-elisp
+(install-elisp "<a href="https://raw.github.com/m2ym/popwin-el/master/popwin.el&quot;">https://raw.github.com/m2ym/popwin-el/master/popwin.el"</a>)
+;; auto-install
+(auto-install-from-url "<a href="https://raw.github.com/m2ym/popwin-el/master/popwin.el&quot;">https://raw.github.com/m2ym/popwin-el/master/popwin.el"</a>)
+</code></pre>
+
+<p>And then add the following code into your <code>.emacs</code>:</p>
+
+<pre><code>(require 'popwin)
+(setq display-buffer-function 'popwin:display-buffer)
+</code></pre>
+
+<p>popwin is tested under GNU Emacs 22 or later.</p>
+
+<h2>Basic Usage</h2>
+
+<p>Special buffers, for example <code>*Help*</code>, specified in
+<code>popwin:special-display-config</code> will be shown in a popup window. You
+can close the popup window by typing <code>C-g</code> or selecting other windows.</p>
+
+<p>By default, <code>*Help*</code>, <code>*Completions*</code>, <code>*compilation*</code>, and <code>*Occur*</code>
+buffers will be shown in a popup window. Try <code>M-x find-file</code> and type
+<code>TAB TAB</code>. You may see a popup window at the bottom of the frame.</p>
+
+<p><strong>File Name Completion</strong></p>
+
+<p><img src="http://cx4a.org/software/popwin/popwin-find-file.png" alt=""></p>
+
+<p>Let me show other examples.</p>
+
+<p><strong><code>M-x occur</code></strong></p>
+
+<p><img src="http://cx4a.org/software/popwin/popwin-occur.png" alt=""></p>
+
+<p><strong><code>M-x compile</code></strong></p>
+
+<p><img src="http://cx4a.org/software/popwin/popwin-compile.png" alt=""></p>
+
+<h2>Customization</h2>
+
+<p>Please do <code>M-x customize-group RET popwin RET</code>. See the header of
+<code>popwin.el</code>, source code, and docstrings for more information.</p>
+
+<h3>Default Keymap</h3>
+
+<p>popwin provides a default keymap named <code>popwin:keymap</code>. You can use it
+like:</p>
+
+<pre><code>(global-set-key (kbd "C-x p") popwin:keymap)
+</code></pre>
+
+<p>Keymap:</p>
+
+<pre><code>| Key    | Command                    |
+|--------+----------------------------|
+| b, C-b | popwin:popup-buffer        |
+| M-b    | popwin:popup-buffer-tail   |
+| o, C-o | popwin:display-buffer      |
+| p, C-p | popwin:display-last-buffer |
+| f, C-f | popwin:find-file           |
+| M-f    | popwin:find-file-tail      |
+| s, C-s | popwin:select-popup-window |
+| M-s    | popwin:stick-popup-window  |
+| 0      | popwin:close-popup-window  |
+| m, C-m | popwin:messages            |
+</code></pre>
+
+<h2>Special Display Config</h2>
+
+<p>When you want to show buffers in a popup window as you like, you need
+to write a configuration about <code>popwin:special-display-config</code>.</p>
+
+<p>This variable is a list of a form like <code>(pattern :regexp REGEXP :width
+WIDTH :height HEIGHT :position POS :noselect NOSEL :stick
+STICK)</code>. Only <code>pattern</code> is necessary and other keywords are
+optional. <code>PATTERN</code> is string or symbol. If string, it indicates which
+buffers should be shown in a popup window. If symbol, it indicates
+which buffers of the major mode of the symbol should be shown in a
+popup window.</p>
+
+<p>Take an example. If you want to show <code>*scratch*</code> buffer, write the
+following code:</p>
+
+<pre><code>(setq popwin:special-display-config '(("*scratch*")))
+</code></pre>
+
+<p>And then display <code>*scratch*</code> like:</p>
+
+<pre><code>(display-buffer "*scratch*")
+</code></pre>
+
+<p>You may see the buffer at the bottom of the frame.</p>
+
+<p>If you specify <code>t</code> to <code>REGEXP</code>, you can specify a regexp to <code>PATTERN</code>
+for matching a buffer name.</p>
+
+<p>If you specify a number to <code>WIDTH</code>, the value will be used instead of
+<code>popwin:popup-window-width</code>. <code>HEIGHT</code> and <code>POS</code> are same.</p>
+
+<p>If you specify <code>t</code> to <code>NOSEL</code>, a popup window will not be selected
+when it is shown. If you specify <code>t</code> to <code>STICK</code>, a popup window will be
+stuck by default.</p>
+
+<p>Remember that popwin can handle <code>display-buffer</code> only. So popwin can't
+handle the behaviors like switching buffer. This is NOT a bug but a
+feature.</p>
+
+<h3>Examples</h3>
+
+<h4>Anything</h4>
+
+<p>Show <code>*anything*</code> in a popup window.</p>
+
+<pre><code>(setq anything-samewindow nil)
+(push '("*anything*" :height 20) popwin:special-display-config)
+</code></pre>
+
+<p><img src="http://cx4a.org/software/popwin/popwin-anything.png" alt=""></p>
+
+<h4>Dired</h4>
+
+<p>Show dired buffers in a popup window by <code>M-x dired-jump-other-window</code>.</p>
+
+<pre><code>(push '(dired-mode :position top) popwin:special-display-config)
+</code></pre>
+
+<p><img src="http://cx4a.org/software/popwin/popwin-dired.png" alt=""></p>
+
+<h2>Working with Other Extensions</h2>
+
+<p>Some extensions can't work with popwin or needs workarounds. Here is
+the known issues and solutions.</p>
+
+<h4>YaTeX</h4>
+
+<p><code>misc/popwin-yatex.el</code> helps you to show YaTeX related buffers in
+popup windows. Add the following code into <code>.emacs</code>.</p>
+
+<pre><code>(require 'popwin-yatex)
+</code></pre>
+
+<p>You may write the configuration like:</p>
+
+<pre><code>(push '("*YaTeX-typesetting*") popwin:special-display-config)
+</code></pre>
+
+<h4>w3m</h4>
+
+<p><code>misc/popwin-w3m.el</code> helps you to show specific pages with w3m in
+popup windows. Add the following code into <code>.emacs</code>.</p>
+
+<pre><code>(require 'popwin-w3m)
+</code></pre>
+
+<p>It is recommended to change <code>browse-url-browser-function</code> to
+<code>popwin:w3m-browse-url</code>.</p>
+
+<pre><code>(setq browse-url-browser-function 'popwin:w3m-browse-url)
+</code></pre>
+
+<p><code>popwin:w3m-browse-url</code> is a function (and command) displaying w3m
+buffers in popup windows if the given URL is matched with the rules.</p>
+
+<p>The rules are described by <code>popwin:w3m-special-display-config</code>
+variable, which has a almost same structure of
+<code>popwin:special-display-config</code>.</p>
+
+<p>The difference is <code>popwin:w3m-special-display-config</code> takes an URL
+regular expression instead of buffer name pattern.</p>
+
+<p>For example, if you want to show google search pages in popup windows,
+the configuration could be:</p>
+
+<pre><code>(push '("^http://www\\.google\\.com/.*$") popwin:w3m-special-display-config)
+</code></pre>
+
+<h4><code>windows.el</code></h4>
+
+<p>There is an problem when loading <code>windows.el</code> after loading
+<code>popwin.el</code>. So load <code>windows.el</code> first.</p>
+
+<h2>API</h2>
+
+<p>Introduce basic API of popwin. See source code for more information.</p>
+
+<h3>Function: <code>popwin:create-popup-window</code>
+</h3>
+
+<pre><code>popwin:create-popup-window &amp;optional size position adjust =&gt; (master-window popup-window)
+</code></pre>
+
+<p><code>popwin:create-popup-window</code> creates a popup window and return it with
+a master window. Master window is a window which is splitted when
+creating the popup window. A resposibility of closing the popup window
+is on developers.</p>
+
+<h3>Function: <code>popwin:popup-buffer</code>
+</h3>
+
+<pre><code>popwin:popup-buffer buffer &amp;key width height position noselect stick =&gt; popup-window
+</code></pre>
+
+<p><code>popwin:popup-buffer</code> displays the buffer in a popup window. The popup
+window will be closed automatically. Keywords arguments are same
+meanings to an element of <code>popwin:special-display-config</code>.</p>
+
+<h3>Function: <code>popwin:display-buffer</code>
+</h3>
+
+<p>Same as <code>popwin:popup-buffer</code> except <code>popwin:display-buffer</code> refers to
+<code>popwin:special-display-config</code> and uses its configuration. If no
+entry is found in <code>popwin:special-display-config</code>, the buffer will be
+displayed as usual way.</p>
+
+<hr><p>Copyright (C) 2011  Tomohiro Matsuyama &lt;<a href="mailto:tomo@cx4a.org">tomo@cx4a.org</a>&gt;</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/m2ym">m2ym</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+  </body>
+</html>
